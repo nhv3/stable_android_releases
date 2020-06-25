@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<!--
+	Description:
+	Reads and plots data from wearX.
+-->
+<html>
+
+<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+
+	<title>WearS</title>
+
+	<style>
+		@import 'ui/css/evothings-app.css';
+	</style>
+
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script>
+
+	<script src="cordova.js"></script>
+	<script src="libs/smoothie.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/easyble/easyble.js"></script>
+	
+	<script src="app.js"></script>
+	<script src="prog.js"></script>
+
+</head>
+
+<body ontouchstart=""><!-- ontouchstart="" enables low-delay CSS transitions. -->
+
+	<header>
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg">
+		</button>
+
+		<img class="logotype" src="ui/images/stanford_logo.png" alt="Evothings">
+
+		<button id="menu-button" tabindex="0" onclick="this.focus()">
+			<img src="ui/images/menu.svg">
+		</button>
+
+	</header>
+
+	<h1>PPG Miner V1</h1>
+	<p class="switchtext" id = "developer_mode_text">Developer Mode ON</p>
+<label class="switch">
+  <input type="checkbox" id ="developer_mode" onclick = "prog.developerCheck(this.id)">
+  <span class="slider round"></span>
+</label>
+</br>
+	<button onclick="app.onStartButton()" class="green">START</button>
+	<button onclick="app.onStopButton()" class="red">STOP</button>
+	<button id="writeFile" class="blue">SAVE</button>
+
+
+<p id="textarea"></p>
+
+	<p id="info">Status</p>
+	<p id="info1">Red CH.</p>
+	<canvas id="canvas1" width="300" height="100"></canvas>
+
+	<p id="info2">Green CH.</p>
+	<canvas id="canvas2" width="300" height="100"></canvas>
+
+	<p id="info3">NIR CH.</p>
+	<canvas id="canvas3" width="300" height="100"></canvas>
+
+	<p id="info4">AMB1 CH.</p>
+	<canvas id="canvas4" width="300" height="100"></canvas>
+
+	<script>
+
+	function init()
+	{
+		initChart()
+	}
+	function initChart()
+	{
+		smoothie1 = new SmoothieChart({
+			millisPerPixel: 500,
+					enableDpiScaling: true,
+					yMinFormatter: function(min, precision) {
+						return parseFloat(min).toFixed(precision);
+					},
+					yMaxFormatter: function(max, precision) {
+						return parseFloat(max).toFixed(precision);
+					},
+
+					maxValue: 1.2,
+					minValue: -1.2,
+					maxValueScale: 1,
+					minValueScale: 1,
+					interpolation: 'bezier',
+					scaleSmoothing: 0.125,
+					maxDataSetLength: 2,
+					scrollBackwards: true,
+					grid: {
+						fillStyle: '#000000',
+						strokeStyle: '#EAEAEA',// fill color
+						lineWidth: 1,
+						sharpLines: true,
+						millisPerLine: 500,
+						verticalSections: 6,
+						borderVisible: true
+					},
+					labels: {
+						fillStyle: '#D9661F',
+						disabled: false,
+						fontSize: 16,
+						fontFamily: 'monospace',
+						precision: 4
+					},
+					timestampFormatter: SmoothieChart.timeFormatter,
+					horizontalLines: []
+		})
+		smoothie1.streamTo(document.getElementById("canvas1"))
+		line1 = new TimeSeries({})
+		line1dc = new TimeSeries({})
+		smoothie1.addTimeSeries(line1,{ strokeStyle:'#D9661F', lineWidth:2})
+		smoothie1.addTimeSeries(line1dc,{ strokeStyle: '#DA0078',lineWidth:2})
+
+
+		smoothie2 = new SmoothieChart({
+			millisPerPixel: 500,
+					enableDpiScaling: true,
+					yMinFormatter: function(min, precision) {
+						return parseFloat(min).toFixed(precision);
+					},
+					yMaxFormatter: function(max, precision) {
+						return parseFloat(max).toFixed(precision);
+					},
+					timestampFormatter:SmoothieChart.timeFormatter,
+					maxValue: 1.2,
+					minValue: -1.2,
+					maxValueScale: 1,
+					minValueScale: 1,
+					interpolation: 'bezier',
+					scaleSmoothing: 0.125,
+					maxDataSetLength: 2,
+					scrollBackwards: true,
+					grid: {
+						fillStyle: '#000000',
+						strokeStyle: '#EAEAEA',// fill color
+						lineWidth: 1,
+						sharpLines: true,
+						millisPerLine: 500,
+						verticalSections: 6,
+						borderVisible: true
+					},
+					labels: {
+						fillStyle: '#00B0DA',
+						disabled: false,
+						fontSize: 16,
+						fontFamily: 'monospace',
+						precision: 4
+					},
+					horizontalLines: []
+		})
+		smoothie2.streamTo(document.getElementById("canvas2"))
+		line2 = new TimeSeries({})
+		line2dc = new TimeSeries({})
+		smoothie2.addTimeSeries(line2,{ strokeStyle:'#00B0DA', lineWidth:2})
+		smoothie2.addTimeSeries(line2dc,{ strokeStyle: '#DA0078',lineWidth:2})
+
+
+		smoothie3 = new SmoothieChart({
+			millisPerPixel: 500,
+					enableDpiScaling: true,
+					yMinFormatter: function(min, precision) {
+						return parseFloat(min).toFixed(precision);
+					},
+					yMaxFormatter: function(max, precision) {
+						return parseFloat(max).toFixed(precision);
+					},
+					timestampFormatter:SmoothieChart.timeFormatter,
+					maxValue: 1.2,
+					minValue: -1.2,
+					maxValueScale: 1,
+					minValueScale: 1,
+					interpolation: 'bezier',
+					scaleSmoothing: 0.125,
+					maxDataSetLength: 2,
+					scrollBackwards: true,
+					grid: {
+						fillStyle: '#000000',
+						strokeStyle: '#EAEAEA',// fill color
+						lineWidth: 1,
+						sharpLines: true,
+						millisPerLine: 500,
+						verticalSections: 6,
+						borderVisible: true
+					},
+					labels: {
+						fillStyle: '#00A598',
+						disabled: false,
+						fontSize: 16,
+						fontFamily: 'monospace',
+						precision: 4
+					},
+					horizontalLines: []
+		})
+		smoothie3.streamTo(document.getElementById("canvas3"))
+		line3 = new TimeSeries({})
+		line3dc = new TimeSeries({})
+		smoothie3.addTimeSeries(line3,{ strokeStyle:'#00A598', lineWidth:2})
+		smoothie3.addTimeSeries(line3dc,{ strokeStyle: '#DA0078',lineWidth:2})
+
+		smoothie4 = new SmoothieChart({
+			millisPerPixel: 500,
+					enableDpiScaling: true,
+					yMinFormatter: function(min, precision) {
+						return parseFloat(min).toFixed(precision);
+					},
+					yMaxFormatter: function(max, precision) {
+						return parseFloat(max).toFixed(precision);
+					},
+					timestampFormatter:SmoothieChart.timeFormatter,
+					maxValue: 1.2,
+					minValue: -1.2,
+					maxValueScale: 1,
+					minValueScale: 1,
+					interpolation: 'bezier',
+					scaleSmoothing: 0.125,
+					maxDataSetLength: 2,
+					scrollBackwards: true,
+					grid: {
+						fillStyle: '#000000',
+						strokeStyle: '#EAEAEA',// fill color
+						lineWidth: 1,
+						sharpLines: true,
+						millisPerLine: 500,
+						verticalSections: 6,
+						borderVisible: true
+					},
+					labels: {
+						fillStyle: '#ED4E33',
+						disabled: false,
+						fontSize: 16,
+						fontFamily: 'monospace',
+						precision: 4
+					},
+					horizontalLines: []
+		})
+		smoothie4.streamTo(document.getElementById("canvas4"))
+		line4 = new TimeSeries({})
+		line4dc = new TimeSeries({})
+		smoothie4.addTimeSeries(line4,{ strokeStyle:'#ED4E33', lineWidth:2})
+		smoothie4.addTimeSeries(line4dc,{ strokeStyle: '#DA0078',lineWidth:2})
+
+	}
+
+
+
+	document.addEventListener(
+		'deviceready',
+		function() { evothings.scriptsLoaded(init), app.onReady() },
+		false);
+	</script>
+
+<h1>Programmer Interface</h1>
+	<p id="info">LED Select</p>
+	<button id="L1" onclick="prog.onLEDSelect(this.id)" class="green" >G-R-N</button> <p></p>
+	<button id="L2" onclick="prog.onLEDSelect(this.id)" class="gray">G-R</button>
+	<button id="L3" onclick="prog.onLEDSelect(this.id)" class="gray">G-N</button>
+	<button id="L4" onclick="prog.onLEDSelect(this.id)" class="gray">R-N</button> <p></p>
+	<button id="L5" onclick="prog.onLEDSelect(this.id)" class="gray">R</button>
+	<button id="L6" onclick="prog.onLEDSelect(this.id)" class="gray">G</button>
+	<button id="L7" onclick="prog.onLEDSelect(this.id)" class="gray">N</button>
+
+
+	<p id="info">GREEN LED Value :: <input type="text" id="LED1_val" value="2"/></p>
+	<p id="info">RED LED Value :: <input type="text" id="LED2_val" value="2"/></p>
+	<p id="info">NIR LED Value :: <input type="text" id="LED3_val" value="2"/></p>
+	<br/>
+
+	<p id="info">TIA Cap. Value :: <input type="text" id="TIA_cap_val" value="2"/></p>
+	<p id="info">TIA Res. Value :: <input type="text" id="TIA_res_val" value="2"/></p>
+	<br/>
+	<p id="info">LED Select :: <input type="text" id="LED_select" value="1"/></p>
+	<button id="start_prog" onclick="prog.program()" class="blue">Program Device</button>
+
+
+
+
+
+				<script src="libs/smoothie/smoothie.js"></script>
+
+		</body>
+
+</html>
