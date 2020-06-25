@@ -14,6 +14,8 @@ var rg_mask = 0x06
 var rgn_mask = 0x07
 var phase_mode = 0x07;
 
+evothings.loadScript('libs/evothings/easyble/easyble.js');
+
 prog.initialize = function()
 {
 	document.addEventListener(
@@ -169,7 +171,7 @@ prog.program = function()
 		{
 			program_enabled =true; //Use a flag to let app.js know we only want to program the device and NOT stream data
 			prog_pack[0] = phase_mode;
-			app.onStartButton(); //We want to tell app.js that we want to connect and program the device 
+			document.getElementById('start_button').click() //We want to tell app.js that we want to connect and program the device 
 		}
 
 

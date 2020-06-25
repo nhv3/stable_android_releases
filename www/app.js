@@ -182,6 +182,10 @@ app.deviceIsSensorTag = function(device)
 			device.name.indexOf(deviceName) > -1);
 };
 
+app.ProgRead = function()
+{
+	app.onStartButton();
+}
 
 /**
  * Read services for a device.
@@ -209,10 +213,34 @@ app.readServices = function(device)
 	
 	if(program_enabled)
 	{
-		hyper.log("Viola!")
-	}
+        device.readServices(
+		[app.sensortag.SENSOR_SERVICE],
+		function(){hyper.log('Services Read')
+	device.writeCharacteristic(
+		      "0000c003-1212-efde-1523-785fef13d123",
+		      new Uint8Array([1]), // Write byte with value 1.
+		      function()
+		      {
+		        console.log('BLE characteristic written.');
+		      },
+		      function(errorCode)
+		      {
+		        console.log('BLE writeDescriptor error: ' + errorCode);
+		      });},
+		// Use this function to monitor magnetometer data
+		function(errorCode)
+		{
+			console.log('Error: failed to read services: ' + errorCode + '.');
+		});
 
-	device.readServices(
+        
+
+
+
+	}
+	else
+	{
+device.readServices(
 		[app.sensortag.SENSOR_SERVICE],
 		app.startNotification,
 		// Use this function to monitor magnetometer data
@@ -220,6 +248,9 @@ app.readServices = function(device)
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
+
+	}
+
 };
 
 app.startNotification = function(device)
