@@ -218,7 +218,7 @@ app.readServices = function(device)
 		function(){hyper.log('Services Read')
 	device.writeCharacteristic(
 		      "0000c003-1212-efde-1523-785fef13d123",
-		      new Uint8Array([1]), // Write byte with value 1.
+		      new Uint8Array([45]), // Write byte with value 1.
 		      function()
 		      {
 		        console.log('BLE characteristic written.');
@@ -313,62 +313,6 @@ app.startNotification = function(device)
 		{
 			console.log('Error: enableNotification: ' + errorCode + '.');
 		});
-
-	device.enableNotification(
-		app.sensortag.RED,
-		function(data)
-		{
-			var dataArray = new Uint8Array(data);
-			var canvas = document.getElementById('canvas3');
-			//var ch2Name = document.getElementById("ch2Name").value;
-			var context = canvas.getContext('2d');
-			//Now we need to split the 8byte array into two 4byte chonks 
-			var ppg_data = dataArray.slice(0,4); //Note the end arg does not include that byte, so this is bytes 0,1,2,3
-			var time_stamp = dataArray.slice(4,8); //Grabs bytes 4,5,6,7
-
-			var dataSensor = evothings.util.littleEndianToUint32(ppg_data,0)//*(1.2)*1000/(Math.pow(2,21))
-			app.avgupdate(dataSensor,movArrR,DCsumR,DCmeanR);
-
-			//time_track_RED_stop = new Date();
-			//RED_elapsed = time_track_RED_stop - time_track_RED_start;
-			//time_track_GREEN_start = time_track_RED_stop;
-			datapack2.push(dataSensor);
-			//line3.append(new Date().getTime(), dataSensor);
-			//line3dc.append(new Date().getTime(), DCmeanR);
-			document.getElementById('info3').innerHTML = 'Red CH.: ' + dataSensor;
-		},
-		function(errorCode)
-		{
-			console.log('Error: enableNotification: ' + errorCode + '.');
-		});
-
-		device.enableNotification(
-			app.sensortag.NIR,
-			function(data)
-			{
-				var dataArray = new Uint8Array(data);
-				var canvas = document.getElementById('canvas3');
-				//var ch2Name = document.getElementById("ch2Name").value;
-				var context = canvas.getContext('2d');
-				//Now we need to split the 8byte array into two 4byte chonks 
-				var ppg_data = dataArray.slice(0,4); //Note the end arg does not include that byte, so this is bytes 0,1,2,3
-				var time_stamp = dataArray.slice(4,8); //Grabs bytes 4,5,6,7
-
-				var dataSensor = evothings.util.littleEndianToUint32(ppg_data,0)//*(1.2)*1000/(Math.pow(2,21))
-				app.avgupdate(dataSensor,movArrN,DCsumN,DCmeanN);
-
-				//time_track_NIR_stop = new Date();
-				//NIR_elapsed = time_track_NIR_stop - time_track_NIR_start;
-				//time_track_GREEN_start = time_track_NIR_stop;
-				datapack3.push(dataSensor);
-				//line4.append(new Date().getTime(), dataSensor);
-				//line4dc.append(new Date().getTime(), DCmeanN)
-				document.getElementById('info4').innerHTML = 'NIR CH.: ' + dataSensor;
-			},
-			function(errorCode)
-			{
-				console.log('Error: enableNotification: ' + errorCode + '.');
-			});
 
 };
 
