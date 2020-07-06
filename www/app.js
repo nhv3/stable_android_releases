@@ -204,6 +204,9 @@ app.connectToDevice = function(device)
 		{
 			app.showInfo('Error: connection failed: ' + errorCode + '.');
 			isConnected = false;
+			app.stopConnectTimer();
+			evothings.easyble.stopScan();
+			evothings.easyble.closeConnectedDevices();
 			evothings.ble.reset();
 		});
 };
@@ -216,9 +219,11 @@ app.readServices = function(device)
         device.readServices(
 		[app.sensortag.SENSOR_SERVICE],
 		function(){hyper.log('Services Read')
+		var arra = new Uint8Array(1);
+		arra[0] = prog_pack[0];
 	device.writeCharacteristic(
 		      "0000c003-1212-efde-1523-785fef13d123",
-		      new Uint8Array([45]), // Write byte with value 1.
+		      arra, // Write byte with value og programming pack.
 		      function()
 		      {
 		        console.log('BLE characteristic written.');
@@ -232,7 +237,7 @@ app.readServices = function(device)
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
-
+    program_enabled = 0;    
         
 
 

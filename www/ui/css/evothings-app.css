@@ -831,3 +831,42 @@ input:checked + .slider:before {
   vertical-align: middle;
   align: left;
 }
+
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  height: auto;
+}
+
+.stepper {
+  border: none;
+  display: inline-block;
+  overflow: visible;
+  height: 1.0em;
+  background: #fff;
+  padding: 1px;
+}
+
+.stepper input {
+  width: 1em;
+  display: inline-block;
+  height: 100%;
+  text-align: center;
+  border: 0;
+  background: transparent;
+  color: #000;
+}
+
+.stepper button {
+  width: 1.4em;
+  display: inline-block;
+  font-weight: 300;
+  height: 100%;
+  line-height: 0.1em;
+  font-size: 0.5em;
+  padding: 0.1em !important;
+  background: #eee;
+  color: #333;
+  border: none;
+}
+
