@@ -54,7 +54,20 @@
 
 	</header>
 
-	<h1>PPG Miner V1</h1>
+	<h1>PPG Collector</h1>
+	<p class="switchtext" id = "time_monitor_text"> <b>Time Monitor: OFF</b></p>
+		<label class="switch">
+			<input type="checkbox" id ="time_monitor" onclick = "prog.timeCheck(this.id)">
+			<span class="slider round"></span>
+		</label>
+		<p></p>
+		<form>
+		Time: <input type="text" 
+		size = "1" 
+		maxlength="5" 
+		id = "time_monitor_value" 
+		> seconds
+		</form>
 	<button onclick="app.onStartButton()" class="green" id = "start_button">START</button>
 	<button onclick="app.onStopButton()" class="red">STOP</button>
 	<button id="writeFile" class="blue">SAVE</button>
@@ -93,8 +106,8 @@
 					return parseFloat(max).toFixed(precision);
 				},
 
-				maxValue: 1.2,
-				minValue: -1.2,
+				maxValue: 1,
+				minValue: -1,
 				maxValueScale: 1,
 				minValueScale: 1,
 				interpolation: 'bezier',
@@ -137,8 +150,8 @@
 					return parseFloat(max).toFixed(precision);
 				},
 				timestampFormatter:SmoothieChart.timeFormatter,
-				maxValue: 1.2,
-				minValue: -1.2,
+				maxValue: 1,
+				minValue: -1,
 				maxValueScale: 1,
 				minValueScale: 1,
 				interpolation: 'bezier',
@@ -180,8 +193,8 @@
 					return parseFloat(max).toFixed(precision);
 				},
 				timestampFormatter:SmoothieChart.timeFormatter,
-				maxValue: 1.2,
-				minValue: -1.2,
+				maxValue: 1,
+				minValue: -1,
 				maxValueScale: 1,
 				minValueScale: 1,
 				interpolation: 'bezier',
@@ -222,8 +235,8 @@
 					return parseFloat(max).toFixed(precision);
 				},
 				timestampFormatter:SmoothieChart.timeFormatter,
-				maxValue: 1.2,
-				minValue: -1.2,
+				maxValue: 1,
+				minValue: -1,
 				maxValueScale: 1,
 				minValueScale: 1,
 				interpolation: 'bezier',

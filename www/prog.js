@@ -3,9 +3,13 @@
 var prog = {};
 var developer_mode = false;
 var sep_gain_mode = false;
+var observer_mode = false;
 var prog_pack = [];
 var LED_Control = [];
+var time_pack = [];
 var program_enabled = false;
+var number_is_valid = false;
+var time_length = 0;
 var tia_res_char = ['500k','250k','100k','50k', '25k','10k','1M','2M'];
 var tia_cap_char = ['5p','2.5p','10p','7.5p', '20p','17.5p','25p','22.5p'];
 
@@ -228,6 +232,47 @@ prog.onLEDSelect = function(clicked_id)
 
 }
 
+prog.valueCheck = function()
+{
+	var unit = document.getElementById("time_monitor_value").value;
+
+	if(/^\d+$/.test(unit)) //Use regex magic. 
+	{
+		time_length = Number(unit);
+		time_pack[0] = time_length & 0x00ff; //grab first byte
+		time_pack[1] = (time_length & 0xff00) >> 8; //grab second byte
+		number_is_valid = true;
+	}
+
+	else //if we fail, alert the user
+	{
+		alert("Sorry, the value entered is either NULL or not a number. Please enter a valid, positive number between the values of 10 and 65,000.")
+		number_is_valid = false;
+	}
+
+}
+
+
+prog.timeCheck = function(toggle_id)
+{
+	if(document.getElementById(toggle_id).checked)
+	{
+
+		document.getElementById("time_monitor_text").innerHTML = 'Time Monitor : ON'
+		document.getElementById("time_monitor_text").style.fontWeight = "bold"
+		observer_mode = true;
+
+	}
+
+	else
+	{
+		document.getElementById("time_monitor_text").innerHTML = 'Time Monitor : OFF'
+		document.getElementById("time_monitor_text").style.fontWeight = "bold"
+		observer_mode = false;
+	}
+
+}
+
 //Check the developer mode. If its OFF, then we are only using the calibration mode and on the phase type can be modified (ie. green on, red on, nir on, single and dual phase items)
 //On the ble device, the AFE will be program accordingly. If the the device is programmed to dual phase, one of the leds will be used as an ambient phase for individual ambient cancellation in the calibration code. 
 prog.developerCheck = function(toggle_id)
@@ -266,8 +311,8 @@ prog.sepGainCheck = function(toggle_id)
 prog.gain_pack =function()
 {
 //If sep gain mode is enabled, we need to gather its contents for writing to TIAGAIN sector
-			if(sep_gain_mode)
-			{
+if(sep_gain_mode)
+{
 				prog_pack[5] = 0x01; //Represents the separate gain 
 				prog_pack[6] = TIA_R1;
 				prog_pack[7] = TIA_C1;
@@ -284,7 +329,7 @@ prog.gain_pack =function()
 				prog_pack[9] = 0x00;
 			}
 
-}
+		}
 
 //User wants to gather all the options together 
 prog.program = function()

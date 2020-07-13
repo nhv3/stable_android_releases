@@ -36,6 +36,8 @@
  var datapack4=[];
  var tickpack=[];
 
+ var time_connection = 29410200; //Default value for the timer mode, 15 minutes, steps from 32.678KHz timer
+
  var isConnected = false;
 
  app.CONNECT_TIMEOUT = 120000;
@@ -47,9 +49,9 @@
  var deviceName = 'GUTSENS';
  app.sensortag.SENSOR_SERVICE = '0000b001-1212-efde-1523-785fef13d123';
  app.sensortag.TEMP = '0000c001-1212-efde-1523-785fef13d123';
- app.sensortag.GREEN = '0000c002-1212-efde-1523-785fef13d123';
- app.sensortag.RED= '0000c003-1212-efde-1523-785fef13d123';
- app.sensortag.NIR = '0000c004-1212-efde-1523-785fef13d123';
+ app.sensortag.GREEN = '0000c002-1212-efde-1523-785fef13d123'; //Used for real time streaming
+ app.sensortag.RED= '0000c003-1212-efde-1523-785fef13d123'; // Used for data programming 
+ app.sensortag.NIR = '0000c004-1212-efde-1523-785fef13d123'; //Used for time connection monitoring
 
  evothings.loadScript('libs/smoothie.js');
 /**
@@ -198,7 +200,7 @@ app.ProgRead = function()
  		{
  			app.showInfo('Status: wearS connected ...');
  			isConnected = true;
- 			app.readServices(device);
+ 			app.timerConfig(device);
  		},
  		function(errorCode)
  		{
@@ -211,28 +213,100 @@ app.ProgRead = function()
  		});
  };
 
- app.readServices = function(device)
+ app.timerConfig = function(device)
  {
-
- 	if(program_enabled)
+    	//On either BLE operation we need to set the timing configuration
+ 	if(observer_mode) //if enabled, we need to write a timer value mode
  	{
- 		device.readServices(
- 			[app.sensortag.SENSOR_SERVICE],
- 			function(){hyper.log('Services Read')
- 			var arra = new Uint8Array(10);
- 			arra[0] = prog_pack[0];
- 			arra[1] = prog_pack[1];
- 			arra[2] = prog_pack[2];
- 			arra[3] = prog_pack[3];
- 			arra[4] = prog_pack[4];
- 			arra[5] = prog_pack[5];
- 			arra[6] = prog_pack[6];
- 			arra[7] = prog_pack[7];
- 			arra[8] = prog_pack[8];
- 			arra[9] = prog_pack[9];
- 			
+ 		//First check if the time interval is a valid number
+ 		prog.valueCheck();	
+
+ 		if(number_is_valid)
+ 		{
+ 			device.readServices(
+ 				[app.sensortag.SENSOR_SERVICE],
+ 				function(){hyper.log('Services Read')
+ 				var arra = new Uint8Array(3);
+ 			arra[0] = 0x01; //Send one byte that tells the BLE module to timeout at the specified time interval
+ 			arra[1] = time_pack[0];
+ 			arra[2] = time_pack[1];
+
  			device.writeCharacteristic(
- 				"0000c003-1212-efde-1523-785fef13d123",
+ 				"0000c004-1212-efde-1523-785fef13d123",
+		      arra, // Write byte 
+		      function()
+		      {
+		      	console.log('BLE characteristic written.');
+		      },
+		      function(errorCode)
+		      {
+		      	console.log('BLE writeDescriptor error: ' + errorCode);
+		      });},
+ 			function(errorCode)
+ 			{
+ 				console.log('Error: failed to read services: ' + errorCode + '.');
+ 			});
+
+			//Contact next set of services
+			setTimeout(() => { app.readServices(device) }, 2000);
+		}
+
+		else
+		{
+			app.onStopButton(); //stop and disconnec to prevent going any further
+		}
+	}
+	
+	else if(!observer_mode)
+	{
+		device.readServices(
+			[app.sensortag.SENSOR_SERVICE],
+			function(){hyper.log('Services Read')
+			var arra = new Uint8Array(1);
+ 			arra[0] = 0; //Send a 0 to let the process know there is not time monitoring
+ 			device.writeCharacteristic(
+ 				"0000c004-1212-efde-1523-785fef13d123",
+		      arra, // Write byte 
+		      function()
+		      {
+		      	console.log('BLE characteristic written.');
+		      },
+		      function(errorCode)
+		      {
+		      	console.log('BLE writeDescriptor error: ' + errorCode);
+		      });},
+ 			function(errorCode)
+ 			{
+ 				console.log('Error: failed to read services: ' + errorCode + '.');
+ 			});
+
+			//Contact next set of services
+			setTimeout(() => { app.readServices(device) }, 2000);
+
+		}
+};
+
+app.readServices = function(device)
+{
+	if(program_enabled)
+	{
+		device.readServices(
+			[app.sensortag.SENSOR_SERVICE],
+			function(){hyper.log('Services Read')
+			var arra = new Uint8Array(10);
+			arra[0] = prog_pack[0];
+			arra[1] = prog_pack[1];
+			arra[2] = prog_pack[2];
+			arra[3] = prog_pack[3];
+			arra[4] = prog_pack[4];
+			arra[5] = prog_pack[5];
+			arra[6] = prog_pack[6];
+			arra[7] = prog_pack[7];
+			arra[8] = prog_pack[8];
+			arra[9] = prog_pack[9];
+
+			device.writeCharacteristic(
+				"0000c003-1212-efde-1523-785fef13d123",
 		      arra, // Write byte with value og programming pack.
 		      function()
 		      {
@@ -247,39 +321,35 @@ app.ProgRead = function()
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
- 		program_enabled = 0;    
+		program_enabled = 0;    
 
-
-
-
- 	}
- 	else
- 	{
- 		device.readServices(
- 			[app.sensortag.SENSOR_SERVICE],
- 			app.startNotification,
+	}
+	else
+	{
+		device.readServices(
+			[app.sensortag.SENSOR_SERVICE],
+			app.startNotification,
 		// Use this function to monitor magnetometer data
 		function(errorCode)
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
 
- 	}
+	}
+}
 
- };
+app.startNotification = function(device)
+{
+	app.showInfo('Status: Data Streaming ...');
 
- app.startNotification = function(device)
- {
- 	app.showInfo('Status: Data Streaming ...');
-
- 	device.enableNotification(
- 		app.sensortag.GREEN,
- 		function(data)
- 		{
- 			hyper.log(evothings.util.typedArrayToHexString(data))
- 			var dataArray = new Uint8Array(data);
- 			var canvas = document.getElementById('canvas2');
- 			var context = canvas.getContext('2d');
+	device.enableNotification(
+		app.sensortag.GREEN,
+		function(data)
+		{
+			hyper.log(evothings.util.typedArrayToHexString(data))
+			var dataArray = new Uint8Array(data);
+			var canvas = document.getElementById('canvas2');
+			var context = canvas.getContext('2d');
 			//Now we need to split the 8byte array into two 4byte chonks 
 			var d1 = dataArray.slice(0,4); //Grabs Red reg
 			var d2 = dataArray.slice(4,8); //Grabs Green reg
@@ -287,10 +357,10 @@ app.ProgRead = function()
 			var d4 = dataArray.slice(12,16); //Grabs AMB1 reg
 			var time_stamp = dataArray.slice(16,20); //Grabs time nibble
 
-			var dataSensor1 = evothings.util.littleEndianToUint32(d1,0)*(1.2)/(Math.pow(2,21))
-			var dataSensor2 = evothings.util.littleEndianToUint32(d2,0)*(1.2)/(Math.pow(2,21))
-			var dataSensor3 = evothings.util.littleEndianToUint32(d3,0)*(1.2)/(Math.pow(2,21))
-			var dataSensor4 = evothings.util.littleEndianToUint32(d4,0)*(1.2)/(Math.pow(2,21))
+			var dataSensor1 = Number((evothings.util.littleEndianToUint32(d1,0)*(1.2)/(Math.pow(2,21))).toPrecision(6))
+			var dataSensor2 = Number((evothings.util.littleEndianToUint32(d2,0)*(1.2)/(Math.pow(2,21))).toPrecision(6))
+			var dataSensor3 = Number((evothings.util.littleEndianToUint32(d3,0)*(1.2)/(Math.pow(2,21))).toPrecision(6))
+			var dataSensor4 = Number((evothings.util.littleEndianToUint32(d4,0)*(1.2)/(Math.pow(2,21))).toPrecision(6))
 
 			var tick = evothings.util.littleEndianToUint32(time_stamp,0);
 
@@ -312,10 +382,10 @@ app.ProgRead = function()
 			line3.append(new Date().getTime(), dataSensor3);
 			line4.append(new Date().getTime(), dataSensor4);
 
-			line1dc.append(new Date().getTime(), DCmeanR);
-			line2dc.append(new Date().getTime(), DCmeanG);
-			line3dc.append(new Date().getTime(), DCmeanN);
-			line4dc.append(new Date().getTime(), DCmeanA);
+			//line1dc.append(new Date().getTime(), DCmeanR);
+			//line2dc.append(new Date().getTime(), DCmeanG);
+			//line3dc.append(new Date().getTime(), DCmeanN);
+			//line4dc.append(new Date().getTime(), DCmeanA);
 
 			document.getElementById('info1').innerHTML = 'Red CH.:'+ dataSensor1 + 'V' ;
 			document.getElementById('info2').innerHTML = 'Green CH.:'+ dataSensor2 + 'V';
@@ -328,26 +398,26 @@ app.ProgRead = function()
 			console.log('Error: enableNotification: ' + errorCode + '.');
 		});
 
- };
+};
 
- stamp = new Date();
- function createFile() {
- 	var type = window.TEMPORARY;
- 	var size = 5*1024*1024;
- 	logfilename = "WearS" + "_" + stamp.getFullYear() + "_" + stamp.getMonth() + "_" + stamp.getDate() + "_" + stamp.getHours() + "_" + stamp.getMinutes() + "_" + stamp.getSeconds() + ".txt";
- 	window.requestFileSystem(type, size, successCallback, errorCallback)
+stamp = new Date();
+function createFile() {
+	var type = window.TEMPORARY;
+	var size = 5*1024*1024;
+	logfilename = "WearS" + "_" + stamp.getFullYear() + "_" + stamp.getMonth() + "_" + stamp.getDate() + "_" + stamp.getHours() + "_" + stamp.getMinutes() + "_" + stamp.getSeconds() + ".txt";
+	window.requestFileSystem(type, size, successCallback, errorCallback)
 
- 	function successCallback(fs) {
- 		fs.root.getFile(logfilename, {create: true, exclusive: true}, function(fileEntry) {
- 			alert('File creation successfull!')
- 		}, errorCallback);
- 	}
+	function successCallback(fs) {
+		fs.root.getFile(logfilename, {create: true, exclusive: true}, function(fileEntry) {
+			alert('File creation successfull!')
+		}, errorCallback);
+	}
 
- 	function errorCallback(error) {
- 		alert("ERROR: " + error.code)
- 	}
+	function errorCallback(error) {
+		alert("ERROR: " + error.code)
+	}
 
- }
+}
 
 //
 
