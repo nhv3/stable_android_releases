@@ -48,7 +48,7 @@
  app.sensortag = {};
  var deviceName = 'GUTSENS';
  app.sensortag.SENSOR_SERVICE = '0000b001-1212-efde-1523-785fef13d123';
- app.sensortag.TEMP = '0000c001-1212-efde-1523-785fef13d123';
+ app.sensortag.READBACK = '0000c001-1212-efde-1523-785fef13d123';
  app.sensortag.GREEN = '0000c002-1212-efde-1523-785fef13d123'; //Used for real time streaming
  app.sensortag.RED= '0000c003-1212-efde-1523-785fef13d123'; // Used for data programming 
  app.sensortag.NIR = '0000c004-1212-efde-1523-785fef13d123'; //Used for time connection monitoring
@@ -284,29 +284,33 @@ app.ProgRead = function()
 			setTimeout(() => { app.readServices(device) }, 2000);
 
 		}
-};
+	};
 
-app.readServices = function(device)
-{
-	if(program_enabled)
+	app.readServices = function(device)
 	{
-		device.readServices(
-			[app.sensortag.SENSOR_SERVICE],
-			function(){hyper.log('Services Read')
-			var arra = new Uint8Array(10);
-			arra[0] = prog_pack[0];
-			arra[1] = prog_pack[1];
-			arra[2] = prog_pack[2];
-			arra[3] = prog_pack[3];
-			arra[4] = prog_pack[4];
-			arra[5] = prog_pack[5];
-			arra[6] = prog_pack[6];
-			arra[7] = prog_pack[7];
-			arra[8] = prog_pack[8];
-			arra[9] = prog_pack[9];
+		if(program_enabled)
+		{
+			device.readServices(
+				[app.sensortag.SENSOR_SERVICE],
+				function(){hyper.log('Services Read')
+				var arra = new Uint8Array(14);
+				arra[0] = prog_pack[0];
+				arra[1] = prog_pack[1];
+				arra[2] = prog_pack[2];
+				arra[3] = prog_pack[3];
+				arra[4] = prog_pack[4];
+				arra[5] = prog_pack[5];
+				arra[6] = prog_pack[6];
+				arra[7] = prog_pack[7];
+				arra[8] = prog_pack[8];
+				arra[9] = prog_pack[9];
+				arra[10] = prog_pack[10];
+				arra[11] = prog_pack[11];
+				arra[12] = prog_pack[12];
+				arra[13] = prog_pack[13];
 
-			device.writeCharacteristic(
-				"0000c003-1212-efde-1523-785fef13d123",
+				device.writeCharacteristic(
+					"0000c003-1212-efde-1523-785fef13d123",
 		      arra, // Write byte with value og programming pack.
 		      function()
 		      {
@@ -321,35 +325,84 @@ app.readServices = function(device)
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
-		program_enabled = 0;    
+			program_enabled = 0;    
 
-	}
-	else
-	{
-		device.readServices(
-			[app.sensortag.SENSOR_SERVICE],
-			app.startNotification,
+		}
+		else
+		{
+			device.readServices(
+				[app.sensortag.SENSOR_SERVICE],
+				app.startNotification,
 		// Use this function to monitor magnetometer data
 		function(errorCode)
 		{
 			console.log('Error: failed to read services: ' + errorCode + '.');
 		});
 
+		}
+
+		setTimeout(() =>{}, 2000);
 	}
-}
 
-app.startNotification = function(device)
-{
-	app.showInfo('Status: Data Streaming ...');
+	app.startNotification = function(device)
+	{
+		app.showInfo('Status: Data Streaming ...');
 
-	device.enableNotification(
-		app.sensortag.GREEN,
-		function(data)
+device.enableNotification(
+			app.sensortag.READBACK,
+			function(data)
+			{
+				
+				var dataArray = new Uint8Array(data);
+				var d1 = evothings.util.littleEndianToUint32(dataArray.slice(0,4),0); //Grabs DAC settings
+				var d2 = evothings.util.littleEndianToUint32(dataArray.slice(4,8),0); //Grabs LED current settings
+				var d3 = evothings.util.littleEndianToUint32(dataArray.slice(8,12),0); //Grabs MAIN TIA Gain settings
+				var d4 = evothings.util.littleEndianToUint32(dataArray.slice(12,16),0); //Grabs AUX TIA Gain settings
+				var d5 = evothings.util.littleEndianToUint32(dataArray.slice(16,20),0); //Grabs LED phase scheme 
+
+				//Unpack DAC settings
+				var DAC1 = Number((0x000001E0 & d1)>>5);
+				var pol1 = Number((0x00000200 & d1)>>9);
+				var DAC2 = Number((0x00078000 & d1)>>15);
+				var pol2 = Number((0x00080000 & d1)>>19); 
+				var DAC3 = Number((0x0000000F & d1));
+				var pol3 = Number((0x00000010 & d1)>>4);
+				var DACA = Number((0x00003C00 & d1)>>10);
+				var pola = Number((0x00004000 & d1)>>14);
+				//Unpack LED current settings 
+				var LED1_cntrl = Number(0x0000003F & d2);
+				var LED2_cntrl = Number((0x00000FC0 & d2)>>6);
+				var LED3_cntrl = Number((0x0003F000 & d2)>>12);
+
+				//Unpack Main TIA settings
+				var R_main = Number(0x00000007 & d3);
+				var C_main = Number((0x00000038 & d3)>>3);
+
+				//Unpack Aux TIA Settings 
+				var Enable_Sep_gain = Number((0x00008000 & d4)>>15);
+				var R_aux = Number(0x00000007 & d4);
+				var C_aux = Number((0x00000038 & d4)>>3);
+
+				//Unpack Phase
+				var current_phase = Number(d5);
+				hyper.log("test");
+				//Send over to prog.js to update interface
+				prog.update_settings_interface(DAC1,pol1,DAC2,pol2,DAC3,pol3,DACA,pola,LED1_cntrl,LED2_cntrl,LED3_cntrl,R_main,C_main,Enable_Sep_gain,R_aux,C_aux,current_phase);
+
+		},
+		function(errorCode)
 		{
-			hyper.log(evothings.util.typedArrayToHexString(data))
-			var dataArray = new Uint8Array(data);
-			var canvas = document.getElementById('canvas2');
-			var context = canvas.getContext('2d');
+			console.log('Error: enableNotification: ' + errorCode + '.');
+		});
+
+		device.enableNotification(
+			app.sensortag.GREEN,
+			function(data)
+			{
+				//hyper.log(evothings.util.typedArrayToHexString(data))
+				var dataArray = new Uint8Array(data);
+				var canvas = document.getElementById('canvas2');
+				var context = canvas.getContext('2d');
 			//Now we need to split the 8byte array into two 4byte chonks 
 			var d1 = dataArray.slice(0,4); //Grabs Red reg
 			var d2 = dataArray.slice(4,8); //Grabs Green reg
@@ -382,11 +435,6 @@ app.startNotification = function(device)
 			line3.append(new Date().getTime(), dataSensor3);
 			line4.append(new Date().getTime(), dataSensor4);
 
-			//line1dc.append(new Date().getTime(), DCmeanR);
-			//line2dc.append(new Date().getTime(), DCmeanG);
-			//line3dc.append(new Date().getTime(), DCmeanN);
-			//line4dc.append(new Date().getTime(), DCmeanA);
-
 			document.getElementById('info1').innerHTML = 'Red CH.:'+ dataSensor1 + 'V' ;
 			document.getElementById('info2').innerHTML = 'Green CH.:'+ dataSensor2 + 'V';
 			document.getElementById('info3').innerHTML = 'NIR CH.:'+ dataSensor3 + 'V';
@@ -398,26 +446,29 @@ app.startNotification = function(device)
 			console.log('Error: enableNotification: ' + errorCode + '.');
 		});
 
-};
 
-stamp = new Date();
-function createFile() {
-	var type = window.TEMPORARY;
-	var size = 5*1024*1024;
-	logfilename = "WearS" + "_" + stamp.getFullYear() + "_" + stamp.getMonth() + "_" + stamp.getDate() + "_" + stamp.getHours() + "_" + stamp.getMinutes() + "_" + stamp.getSeconds() + ".txt";
-	window.requestFileSystem(type, size, successCallback, errorCallback)
 
-	function successCallback(fs) {
-		fs.root.getFile(logfilename, {create: true, exclusive: true}, function(fileEntry) {
-			alert('File creation successfull!')
-		}, errorCallback);
+
+	};
+
+	stamp = new Date();
+	function createFile() {
+		var type = window.TEMPORARY;
+		var size = 5*1024*1024;
+		logfilename = "WearS" + "_" + stamp.getFullYear() + "_" + stamp.getMonth() + "_" + stamp.getDate() + "_" + stamp.getHours() + "_" + stamp.getMinutes() + "_" + stamp.getSeconds() + ".txt";
+		window.requestFileSystem(type, size, successCallback, errorCallback)
+
+		function successCallback(fs) {
+			fs.root.getFile(logfilename, {create: true, exclusive: true}, function(fileEntry) {
+				alert('File creation successfull!')
+			}, errorCallback);
+		}
+
+		function errorCallback(error) {
+			alert("ERROR: " + error.code)
+		}
+
 	}
-
-	function errorCallback(error) {
-		alert("ERROR: " + error.code)
-	}
-
-}
 
 //
 
@@ -447,6 +498,14 @@ function writeFile() {
             //var blob = new Blob([line1s.data + "\n" + line2s.data + "\n" + line3s.data + "\n" + line4s.data], {type: 'text/plain'});
             var blob = new Blob([datapack1 + "\n" + " END OF RED DATA " + "\n" + datapack2 + "\n" +" END OF GREEN DATA " + "\n" + datapack3 + "\n" +" END OF NIR DATA " + "\n" + datapack4 + "\n" +" END OF DATA " + "\n" + tickpack], {type: 'text/plain'});
             fileWriter.write(blob);
+
+            //Reset all data holders
+            datapack1=[];
+ 			datapack2=[];
+ 			datapack3=[];
+ 			datapack4=[];
+ 			tickpack=[];
+
         }, errorCallback);
 
 		}, errorCallback);

@@ -12,7 +12,8 @@ var number_is_valid = false;
 var time_length = 0;
 var tia_res_char = ['500k','250k','100k','50k', '25k','10k','1M','2M'];
 var tia_cap_char = ['5p','2.5p','10p','7.5p', '20p','17.5p','25p','22.5p'];
-
+var dac_char = ['0','0.47','0.93','1.4','1.87','2.33','2.8','3.27','3.73','4.2','4.67','5.13','5.6','6.07','6.53','7.0','-0.47','-0.93','-1.4','-1.87','-2.33','-2.8','-3.27','-3.73','-4.2','-4.67','-5.13','-5.6','-6.07','-6.53','-7.0'];
+var led_char = ['N','G','GN','R','RN','RG','RGN'];
 
 //Bit masks for LED phase modes 
 var nir_mask = 0x01
@@ -30,6 +31,10 @@ var TIA_R1 = 0x02;
 var TIA_C1 = 0x00;
 var TIA_R2 = 0x02;
 var TIA_C2 = 0x00;
+var DAC1_val = 0x00;
+var DAC2_val = 0x00;
+var DAC3_val = 0x00;
+var DACA_val = 0x00;
 
 
 
@@ -129,6 +134,26 @@ prog.stepperInput = function(id, s, m)
   		case "tiac2":
   		TIA_C2 = el.value; //save the current settings
   		document.getElementById('tia_gain_c2').textContent = 'C2 ->' + tia_cap_char[TIA_C2];
+  		break;
+
+  		case "dac1":
+  		DAC1_val = el.value;
+  		document.getElementById('dac1_set').textContent = dac_char[DAC1_val]+'uA';
+  		break;
+
+  		case "dac2":
+  		DAC2_val = el.value;
+  		document.getElementById('dac2_set').textContent = dac_char[DAC2_val]+'uA';
+  		break;
+
+  		case "dac3":
+  		DAC3_val = el.value;
+  		document.getElementById('dac3_set').textContent = dac_char[DAC3_val]+'uA';
+  		break;
+
+  		case "dacamb":
+  		DACA_val = el.value;
+  		document.getElementById('dacamb_set').textContent = dac_char[DACA_val]+'uA';
   		break;
 
   		default:
@@ -329,7 +354,60 @@ if(sep_gain_mode)
 				prog_pack[9] = 0x00;
 			}
 
-		}
+}
+
+prog.dac_pack = function()
+{
+	if(DAC1_val <= 15)
+	{
+		prog_pack[10] = DAC1_val; //this means its positive 0 -> 7uA range, 0-15 val selection
+		hyper.log(prog_pack[10])
+	}
+	else //then we want a negative dac offset value
+	{
+		var neg_val = DAC1_val - 15; //shift it back to the 0-15 range
+		var shifted = 0x10 | neg_val; //Add in polarity constant
+		prog_pack[10] = shifted;
+
+	}
+
+	if(DAC2_val <= 15)
+	{
+		prog_pack[11] = DAC2_val;
+		hyper.log(prog_pack[11])
+	}
+	else
+	{
+		var neg_val = DAC2_val - 15; //shift it back to the 0-15 range
+		var shifted = 0x10 | neg_val; //Add in polarity constant
+		prog_pack[11] = shifted;
+	}
+	
+	if(DAC3_val <= 15)
+	{
+		prog_pack[12] = DAC3_val;
+		hyper.log(prog_pack[12])
+	}
+	else
+	{
+		var neg_val = DAC3_val - 15; //shift it back to the 0-15 range
+		var shifted = 0x10 | neg_val; //Add in polarity constant
+		prog_pack[12] = shifted;
+	}
+	
+	if(DACA_val <= 15)
+	{
+		prog_pack[13] = DACA_val;
+		hyper.log(prog_pack[13])
+	}
+	else
+	{
+		var neg_val = DACA_val - 15; //shift it back to the 0-15 range
+		var shifted = 0x10 | neg_val; //Add in polarity constant
+		prog_pack[13] = shifted;
+	}
+	
+}
 
 //User wants to gather all the options together 
 prog.program = function()
@@ -353,8 +431,8 @@ prog.program = function()
 			prog_pack[2] = LED1_drive;
 			prog_pack[3] = LED2_drive;
 			prog_pack[4] = LED3_drive;
-
-			prog.gain_pack();
+			prog.gain_pack(); //pack up gain elements 
+			prog.dac_pack(); //pack up offdac elements 
 			document.getElementById('start_button').click()
 			
 		}
@@ -364,5 +442,75 @@ prog.program = function()
 		alert("Programming not allowed - device is currently connected. Please disconnect and then program device.")
 	}
 }
+
+prog.update_settings_interface = function(DAC1,pol1,DAC2,pol2,DAC3,pol3,DACA,pola,LED1_cntrl,LED2_cntrl,LED3_cntrl,R_main,C_main,Enable_Sep_gain,R_aux,C_aux,current_phase)
+{
+
+	//For the DAC settings
+	if((pol1 == 1) && (DAC1 !== 0))
+	{
+
+		document.getElementById('DAC1_csetting').textContent ='GREEN OFFDAC: ' + dac_char[DAC1+15]+'uA'
+	}
+	else
+	{
+
+		document.getElementById('DAC1_csetting').textContent ='GREEN OFFDAC: ' + dac_char[DAC1]+'uA'
+	}
+
+	if((pol2 == 1) && (DAC2 !== 0))
+	{
+		document.getElementById('DAC2_csetting').textContent ='RED OFFDAC: ' + dac_char[DAC2+15]+'uA'
+	}
+	else
+	{
+		document.getElementById('DAC2_csetting').textContent ='RED OFFDAC: ' + dac_char[DAC2]+'uA'
+	}
+	hyper.log("test8")
+	if((pol3 == 1) && (DAC3 !== 0))
+	{
+		document.getElementById('DAC3_csetting').textContent ='NIR OFFDAC: ' + dac_char[DAC3+15]+'uA'
+	}
+	else
+	{
+		document.getElementById('DAC3_csetting').textContent ='NIR OFFDAC: ' + dac_char[DAC3]+'uA'
+	}
+
+	if((pola == 1) && (DACA !== 0))
+	{
+		document.getElementById('DACA_csetting').textContent ='AMB1 OFFDAC: ' + dac_char[DACA+15]+'uA'
+	}
+	else
+	{
+		document.getElementById('DACA_csetting').textContent ='AMB1 OFFDAC: ' + dac_char[DACA]+'uA'
+	}
+
+	//Update LED brightness
+	document.getElementById('LED1_csetting').textContent ='LED1 Current: ' + LED1_cntrl*1.6 +'mA'
+	document.getElementById('LED2_csetting').textContent ='LED2 Current: ' + LED2_cntrl*1.6 +'mA'
+	document.getElementById('LED3_csetting').textContent ='LED3 Current: ' + LED3_cntrl*1.6 +'mA'
+
+	//Update Main TIA 
+	document.getElementById('TIAMAINR1_csetting').textContent ='TIA MAIN R1: ' + tia_res_char[R_main]
+	document.getElementById('TIAMAINC1_csetting').textContent ='TIA MAIN C1: ' + tia_cap_char[C_main]
+
+	//Update sep TIA 
+	if(Enable_Sep_gain == 1)
+	{
+		document.getElementById('ENSEP_csetting').textContent ='SEP GAIN ENABLED?: YES'
+	}
+	else
+	{
+		document.getElementById('ENSEP_csetting').textContent ='SEP GAIN ENABLED?: NO'
+	}
+
+	document.getElementById('TIAAUXR2_csetting').textContent ='TIA AUX R1: ' + tia_res_char[R_aux]
+	document.getElementById('TIAAUXC2_csetting').textContent ='TIA AUX C1: ' + tia_cap_char[C_aux]
+
+document.getElementById('LEDPhase_csetting').textContent ='Phase: ' + led_char[current_phase-1]
+	
+
+}
+
 
 prog.initialize();

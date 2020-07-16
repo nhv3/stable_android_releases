@@ -62,11 +62,11 @@
 		</label>
 		<p></p>
 		<form>
-		Time: <input type="text" 
-		size = "1" 
+		<label style = "font-size: 15pt"><b>Time:</b></label> <input type="text" 
+		size = "2" 
 		maxlength="5" 
 		id = "time_monitor_value" 
-		> seconds
+		> <label style = "font-size: 15pt"><b>second(s)</b></label>
 		</form>
 	<button onclick="app.onStartButton()" class="green" id = "start_button">START</button>
 	<button onclick="app.onStopButton()" class="red">STOP</button>
@@ -259,7 +259,7 @@
 						fontFamily: 'monospace',
 						precision: 4
 					},
-					horizontalLines: []
+					horizontalLines:[]
 				})
 			smoothie4.streamTo(document.getElementById("canvas4"))
 			line4 = new TimeSeries({})
@@ -366,9 +366,76 @@
 				</span>
 				<span style="font-size: 15pt" id = "tia_gain_c2"> C2 -> 5p </span> 
 				<p></p>
+				<span style="color:blue;font-size: 17pt"><b>OFFDAC Trim Settings:</b></span>
+				<p></p>
 
+				<span style="font-size: 15pt"> <b> Green OFFDAC : </b> </span> 
+				<span class="stepper"> 
+					<button>–</button>
+					<input type="number" maxlength = "3" id="dac1" value="0" min="0" max="30" step="1" readonly>
+					<button>+</button>
+				</span>
+				<span style="font-size: 15pt" id = "dac1_set"> 0uA </span> 
+				<p></p>
+
+				<span style="font-size: 15pt"> <b> Red OFFDAC : </b> </span> 
+				<span class="stepper"> 
+					<button>–</button>
+					<input type="number" maxlength = "3" id="dac2" value="0" min="0" max="30" step="1" readonly>
+					<button>+</button>
+				</span>
+				<span style="font-size: 15pt" id = "dac2_set"> 0uA </span> 
+				<p></p>
+
+				<span style="font-size: 15pt"> <b> NIR OFFDAC : </b> </span> 
+				<span class="stepper"> 
+					<button>–</button>
+					<input type="number" maxlength = "3" id="dac3" value="0" min="0" max="30" step="1" readonly>
+					<button>+</button>
+				</span>
+				<span style="font-size: 15pt" id = "dac3_set"> 0uA </span> 
+				<p></p>
+
+				<span style="font-size: 15pt"> <b> AMB1 OFFDAC : </b> </span> 
+				<span class="stepper"> 
+					<button>–</button>
+					<input type="number" maxlength = "3" id="dacamb" value="0" min="0" max="30" step="1" readonly>
+					<button>+</button>
+				</span>
+				<span style="font-size: 15pt" id = "dacamb_set"> 0uA </span> 
+				<p></p>
 
 				<button id="start_prog" onclick="prog.program()" class="blue">Program Device</button>
+<p></p>
+				
+				<span style="color:green;font-size: 17pt"><b>Current AFE Settings:</b></span>
+				<p></p>
+				<span style="font-size: 15pt" id="DAC1_csetting"> GREEN OFFDAC: 0uA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="DAC2_csetting">  RED OFFDAC: 0uA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="DAC3_csetting">  NIR OFFDAC: 0uA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="DACA_csetting">  AMB1 OFFDAC: 0uA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="LED1_csetting">  GREEN Current: 0mA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="LED2_csetting">  RED Current: 0mA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="LED3_csetting">  NIR Current: 0mA </span>
+				<p></p>
+				<span style="font-size: 15pt" id="TIAMAINR1_csetting">  TIA MAIN R1: 0k </span>
+				<p></p>
+				<span style="font-size: 15pt" id="TIAMAINC1_csetting">  TIA MAIN C1: 0p </span>
+				<p></p>
+				<span style="font-size: 15pt" id="ENSEP_csetting">  SEP GAIN ENABLED?: NO </span>
+				<p></p>
+				<span style="font-size: 15pt" id="TIAAUXR2_csetting">  TIA AUX R2: 0k </span>
+				<p></p>
+				<span style="font-size: 15pt" id="TIAAUXC2_csetting">  TIA AUX C2: 0p </span>
+				<p></p>
+				<span style="font-size: 15pt" id="LEDPhase_csetting">  Phase: N/A </span>
+				<p></p>
 
 				<script type="text/javascript">
 					var inc = document.getElementsByClassName("stepper");
