@@ -35,6 +35,7 @@
  var datapack3=[];
  var datapack4=[];
  var tickpack=[];
+ var readpack=[];
 
  var time_connection = 29410200; //Default value for the timer mode, 15 minutes, steps from 32.678KHz timer
 
@@ -225,7 +226,7 @@ app.ProgRead = function()
  		{
  			device.readServices(
  				[app.sensortag.SENSOR_SERVICE],
- 				function(){hyper.log('Services Read')
+ 				function(){
  				var arra = new Uint8Array(3);
  			arra[0] = 0x01; //Send one byte that tells the BLE module to timeout at the specified time interval
  			arra[1] = time_pack[0];
@@ -261,7 +262,7 @@ app.ProgRead = function()
 	{
 		device.readServices(
 			[app.sensortag.SENSOR_SERVICE],
-			function(){hyper.log('Services Read')
+			function(){
 			var arra = new Uint8Array(1);
  			arra[0] = 0; //Send a 0 to let the process know there is not time monitoring
  			device.writeCharacteristic(
@@ -292,7 +293,7 @@ app.ProgRead = function()
 		{
 			device.readServices(
 				[app.sensortag.SENSOR_SERVICE],
-				function(){hyper.log('Services Read')
+				function(){
 				var arra = new Uint8Array(14);
 				arra[0] = prog_pack[0];
 				arra[1] = prog_pack[1];
@@ -385,7 +386,9 @@ device.enableNotification(
 
 				//Unpack Phase
 				var current_phase = Number(d5);
-				hyper.log("test");
+
+				readpack = [DAC1,pol1,DAC2,pol2,DAC3,pol3,DACA,pola,LED1_cntrl,LED2_cntrl,LED3_cntrl,R_main,C_main,Enable_Sep_gain,R_aux,C_aux,current_phase];
+
 				//Send over to prog.js to update interface
 				prog.update_settings_interface(DAC1,pol1,DAC2,pol2,DAC3,pol3,DACA,pola,LED1_cntrl,LED2_cntrl,LED3_cntrl,R_main,C_main,Enable_Sep_gain,R_aux,C_aux,current_phase);
 
@@ -496,7 +499,11 @@ function writeFile() {
 				};
 
             //var blob = new Blob([line1s.data + "\n" + line2s.data + "\n" + line3s.data + "\n" + line4s.data], {type: 'text/plain'});
-            var blob = new Blob([datapack1 + "\n" + " END OF RED DATA " + "\n" + datapack2 + "\n" +" END OF GREEN DATA " + "\n" + datapack3 + "\n" +" END OF NIR DATA " + "\n" + datapack4 + "\n" +" END OF DATA " + "\n" + tickpack], {type: 'text/plain'});
+            var blob = new Blob([readpack + "\n" + " END OF SETTINGS " + datapack1 + "\n" + " END OF RED DATA " + "\n" + datapack2 + "\n" +" END OF GREEN DATA " + "\n" + datapack3 + "\n" +" END OF NIR DATA " + "\n" + datapack4 + "\n" +" END OF AMB DATA " + "\n" + tickpack], {type: 'text/plain'});
+            
+
+
+
             fileWriter.write(blob);
 
             //Reset all data holders
@@ -505,6 +512,7 @@ function writeFile() {
  			datapack3=[];
  			datapack4=[];
  			tickpack=[];
+ 			readpack=[];
 
         }, errorCallback);
 

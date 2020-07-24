@@ -164,88 +164,87 @@ prog.stepperInput = function(id, s, m)
 //Function to change the LED selection
 prog.onLEDSelect = function(clicked_id)
 {
-	hyper.log(prog_pack)
 
 	switch(clicked_id)
 	{
 		case "L1":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = rgn_mask;
 		break;
 
 		case "L2":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L1").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L1").style.background  = "#989898";
+		document.getElementById("L3").cstyle.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = rg_mask;
 
 		break;
 
 		case "L3":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L1").className  = "gray"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L1").style.background  = "#989898";
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = gn_mask;
 		break;
 
 		case "L4":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L1").className  = "gray"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L1").style.background  = "#989898";
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = rn_mask;
 
 		break;
 
 		case "L5":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L1").className  = "gray"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L1").style.background  = "#989898";
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = red_mask;
 
 		break;
 
 		case "L6":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L1").className  = "gray"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L7").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L1").style.background  = "#989898";
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L7").style.background  = "#989898";
 		phase_mode = green_mask;
 
 		break;
 
 		case "L7":
-		document.getElementById(clicked_id).className  = "green"
-		document.getElementById("L2").className  = "gray"
-		document.getElementById("L3").className  = "gray"
-		document.getElementById("L4").className  = "gray"
-		document.getElementById("L5").className  = "gray"
-		document.getElementById("L6").className  = "gray"
-		document.getElementById("L1").className  = "gray"
+		document.getElementById(clicked_id).style.background  =  '#54dfb3';
+		document.getElementById("L2").style.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
+		document.getElementById("L4").style.background  = "#989898";
+		document.getElementById("L5").style.background  = "#989898";
+		document.getElementById("L6").style.background  = "#989898";
+		document.getElementById("L1").style.background  = "#989898";
 		phase_mode = nir_mask;
 
 		break;
@@ -361,7 +360,7 @@ prog.dac_pack = function()
 	if(DAC1_val <= 15)
 	{
 		prog_pack[10] = DAC1_val; //this means its positive 0 -> 7uA range, 0-15 val selection
-		hyper.log(prog_pack[10])
+		
 	}
 	else //then we want a negative dac offset value
 	{
@@ -374,7 +373,7 @@ prog.dac_pack = function()
 	if(DAC2_val <= 15)
 	{
 		prog_pack[11] = DAC2_val;
-		hyper.log(prog_pack[11])
+		
 	}
 	else
 	{
@@ -386,7 +385,7 @@ prog.dac_pack = function()
 	if(DAC3_val <= 15)
 	{
 		prog_pack[12] = DAC3_val;
-		hyper.log(prog_pack[12])
+	
 	}
 	else
 	{
@@ -398,7 +397,7 @@ prog.dac_pack = function()
 	if(DACA_val <= 15)
 	{
 		prog_pack[13] = DACA_val;
-		hyper.log(prog_pack[13])
+	
 	}
 	else
 	{
@@ -466,7 +465,7 @@ prog.update_settings_interface = function(DAC1,pol1,DAC2,pol2,DAC3,pol3,DACA,pol
 	{
 		document.getElementById('DAC2_csetting').textContent ='RED OFFDAC: ' + dac_char[DAC2]+'uA'
 	}
-	hyper.log("test8")
+
 	if((pol3 == 1) && (DAC3 !== 0))
 	{
 		document.getElementById('DAC3_csetting').textContent ='NIR OFFDAC: ' + dac_char[DAC3+15]+'uA'
