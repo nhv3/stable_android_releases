@@ -181,7 +181,7 @@ prog.onLEDSelect = function(clicked_id)
 		case "L2":
 		document.getElementById(clicked_id).style.background  =  '#54dfb3';
 		document.getElementById("L1").style.background  = "#989898";
-		document.getElementById("L3").cstyle.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
 		document.getElementById("L4").style.background  = "#989898";
 		document.getElementById("L5").style.background  = "#989898";
 		document.getElementById("L6").style.background  = "#989898";

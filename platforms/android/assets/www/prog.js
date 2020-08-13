@@ -10,7 +10,7 @@ var time_pack = [];
 var program_enabled = false;
 var number_is_valid = false;
 var time_length = 0;
-var tia_res_char = ['500k','250k','100k','50k', '25k','10k','1M','2M'];
+var tia_res_char = ['500k','250k','100k','50k','25k','10k','1M','2M'];
 var tia_cap_char = ['5p','2.5p','10p','7.5p', '20p','17.5p','25p','22.5p'];
 var dac_char = ['0','0.47','0.93','1.4','1.87','2.33','2.8','3.27','3.73','4.2','4.67','5.13','5.6','6.07','6.53','7.0','-0.47','-0.93','-1.4','-1.87','-2.33','-2.8','-3.27','-3.73','-4.2','-4.67','-5.13','-5.6','-6.07','-6.53','-7.0'];
 var led_char = ['N','G','GN','R','RN','RG','RGN'];
@@ -181,7 +181,7 @@ prog.onLEDSelect = function(clicked_id)
 		case "L2":
 		document.getElementById(clicked_id).style.background  =  '#54dfb3';
 		document.getElementById("L1").style.background  = "#989898";
-		document.getElementById("L3").cstyle.background  = "#989898";
+		document.getElementById("L3").style.background  = "#989898";
 		document.getElementById("L4").style.background  = "#989898";
 		document.getElementById("L5").style.background  = "#989898";
 		document.getElementById("L6").style.background  = "#989898";

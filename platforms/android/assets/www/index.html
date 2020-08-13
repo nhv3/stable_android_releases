@@ -55,18 +55,18 @@
 	</header>
 
 	<h1>PPG Collector</h1>
-	<p class="switchtext" id = "time_monitor_text"> <b>Time Monitor: OFF</b></p>
-		<label class="switch">
-			<input type="checkbox" id ="time_monitor" onclick = "prog.timeCheck(this.id)">
-			<span class="slider round"></span>
+	<p class="switchtext" id = "time_monitor_text" style="visibility: hidden;"> <b>Time Monitor: OFF</b></p>
+		<label class="switch" style="visibility: hidden;">
+			<input type="checkbox" id ="time_monitor" onclick = "prog.timeCheck(this.id)" style="visibility: hidden;">
+			<span class="slider round" style="visibility: hidden;"></span>
 		</label>
 		<p></p>
 		<form>
-		<label style = "font-size: 15pt"><b>Time:</b></label> <input type="text" 
+		<label style = "font-size: 15pt;visibility: hidden;"><b>Time:</b></label> <input type="text" 
 		size = "2" 
 		maxlength="5" 
-		id = "time_monitor_value" 
-		> <label style = "font-size: 15pt"><b>second(s)</b></label>
+		id = "time_monitor_value"  style="visibility: hidden;"
+		> <label style = "font-size: 15pt;visibility: hidden;"><b>second(s)</b></label>
 		</form>
 	<button onclick="app.onStartButton()" class="green" id = "start_button">START</button>
 	<button onclick="app.onStopButton()" class="red">STOP</button>
